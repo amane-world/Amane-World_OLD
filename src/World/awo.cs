@@ -1,7 +1,9 @@
 using System;
 using System.IO;
 using System.Linq;
+using System.Collections.Generic;
 using Logger;
+using System.Threading.Tasks;
 
 namespace AWO
 {
@@ -12,7 +14,19 @@ namespace AWO
     public int rotX;
     public int rotY;
     public int rotZ;
+    public float extra;
+
+    public ChunkBlockStructure(int id, float pos, int rotX, int rotY, int rotZ, float extra)
+    {
+      this.id = id;
+      this.pos = pos;
+      this.rotX = rotX;
+      this.rotY = rotY;
+      this.rotZ = rotZ;
+      this.extra = extra;
+    }
   }
+
   class ChunkStructure
   {
     public int x;
@@ -46,44 +60,52 @@ namespace AWO
       string path = $"{Directory.GetCurrentDirectory()}/worlds/master/{x}.{y}.{z}.awo";
       FileStream fs = new FileStream(path, FileMode.Create);
       BinaryWriter bw = new BinaryWriter(fs);
-      bw.Write(4);    // <header> length
-      bw.Write(8);    // <id> 
-      bw.Write(17.4F); // <pos> 16x16x16(float)
-      bw.Write(45);   // <rotx> 0~359 
-      bw.Write(45);   // <roty> 0~359 
-      bw.Write(45);   // <rotz> 0~359 
-                      // extra (ex. light on,off)
+      bw.Write(60000);     // <header> length
+
+      for (int i = 0; i < 60000; i++)
+      {
+        // block2
+        bw.Write(i);     // <id> 
+        bw.Write(13.7F); // <pos> 16x16x16(float)
+        bw.Write(42);    // <rotx> 0~359 
+        bw.Write(83);    // <roty> 0~359 
+        bw.Write(296);    // <rotz> 0~359 
+        bw.Write(1.0F);     // extra (ex. light on,off)
+      }
+
       bw.Close();
       fs.Close();
       return true;
     }
 
-    public static void LoadChunkBlock(int x, int y, int z)
+    public async static void LoadChunkBlock(int x, int y, int z)
     {
       string path = $"{Directory.GetCurrentDirectory()}/worlds/master/{x}.{y}.{z}.awo";
-      int length;
-      int id;
-      float pos;
-      int rotX;
-      int rotY;
-      int rotZ;
+      int length = 0;
+      List<ChunkBlockStructure> blocks = new List<ChunkBlockStructure>();
 
       using (BinaryReader reader = new BinaryReader(File.Open(path, FileMode.Open)))
       {
+        // header
         length = reader.ReadInt32();
-        id = reader.ReadInt32();
-        pos = reader.ReadSingle();
-        rotX = reader.ReadInt32();
-        rotY = reader.ReadInt32();
-        rotZ = reader.ReadInt32();
+        // body
+        for (int i = 0; i < length; i++)
+        {
+          blocks.Add(new ChunkBlockStructure(reader.ReadInt32(), reader.ReadSingle(), reader.ReadInt32(), reader.ReadInt32(), reader.ReadInt32(), reader.ReadSingle()));
+        }
       }
-      // todo 複数ブロックの非同期読み込み
-      Log.info(length.ToString());
-      Log.info(id.ToString());
-      Log.info(pos.ToString());
-      Log.info(rotX.ToString());
-      Log.info(rotY.ToString());
-      Log.info(rotZ.ToString());
+
+      foreach (ChunkBlockStructure block in blocks)
+      {
+        Log.info(block.id.ToString());
+        Log.info(block.pos.ToString());
+        Log.info(block.rotX.ToString());
+        Log.info(block.rotY.ToString());
+        Log.info(block.rotZ.ToString());
+        Log.info(block.extra.ToString());
+      }
+
+      Log.info("END");
     }
   }
 }
