@@ -13,13 +13,13 @@ namespace Amane
       Log.info($"|    version: {version}     |");
       Log.info("==========================");
       Log.info("天音システムを起動しています...");
-      if (!Chunk.ExistChunk(0, 0, 0))
+      if (!Chunk.ExistChunk(0, 0 - 1, 0))
       {
         Log.info("ワールドの中心が存在しません、生成を開始します...");
-        if (Chunk.GenerateChunk(0, 0, 0))
+        if (Chunk.GenerateChunk(0, 0 - 1, 0))
         {
           Log.info("ワールドの中心を生成しました");
-          Chunk.LoadChunkBlock(0, 0, 0);
+          // Chunk.LoadChunkBlocks(0, 0 - 1, 0);
         }
         else
         {
