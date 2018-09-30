@@ -68,7 +68,8 @@ namespace AWO
       string path = $"{Directory.GetCurrentDirectory()}/worlds/master/{x}.{y}.{z}.awo";
       FileStream fs = new FileStream(path, FileMode.Create);
       BinaryWriter bw = new BinaryWriter(fs);
-      bw.Write(4096 - 1); // <header> length
+      // <header> length
+      bw.Write(4096 - 1);
 
       for (int i = 0; i < 256; i++)
       {
@@ -83,18 +84,25 @@ namespace AWO
         bw.Write(0);
         // <rotz> 0~359
         bw.Write(0);
-        // extra (ex. light on,off)
+        // extra (ex. light brightness)
         bw.Write(0.0F);
       }
+
       for (int i = 0; i < 3840; i++)
       {
         // Dirt Block
-        bw.Write(2);     // <id> 
-        bw.Write(Convert.ToSingle(i)); // <pos> 16x16x16(float)
-        bw.Write(0);    // <rotx> 0~359 
-        bw.Write(0);    // <roty> 0~359 
-        bw.Write(0);   // <rotz> 0~359 
-        bw.Write(0.0F);  // extra (ex. light on,off)
+        // <id>
+        bw.Write(2);
+        // <pos> 16x16x16(float)
+        bw.Write(Convert.ToSingle(i));
+        // <rotx> 0~359
+        bw.Write(0);
+        // <roty> 0~359
+        bw.Write(0);
+        // <rotz> 0~359
+        bw.Write(0);
+        // extra (ex. light brightness) 
+        bw.Write(0.0F);
       }
 
       bw.Close();
